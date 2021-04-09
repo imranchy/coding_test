@@ -1,0 +1,47 @@
+#Importing the required libraries for storing and manipulating
+the data
+import numpy as np
+import pandas as pd
+#Importing required methods for model building
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+from sklearn.metrics import confusion_matrix
+from keras.models import Sequential
+from keras.layers.core import Dense, Activation
+#Reading the Dataset
+df = pd.read_csv("Final.csv")
+#Dropping unnecessary Column
+df = df.drop(columns=["Unnamed: 0"])
+#Preporcessing steps
+# Defining the features
+x = df.drop([’Accident_Severity’], axis=1)
+# Defining the target Variable
+y = df[[’Accident_Severity’]]
+#Dummy handling
+x = pd.get_dummies(data=x,drop_first=True)
+y = pd.get_dummies(data=y)
+#Converting the features and the target to a numpy array
+x = np.array(x)
+y = np.array(y)
+#Splitting the Data for applying ANN (80% Training Data and 20%
+Test Data)
+x_train, x_test, y_train, y_test = train_test_split(x,y,test_
+size=0.2,random_state=42)
+#Feature Scaling of the Training and Test Sets
+from sklearn.preprocessing import StandardScaler
+sc_X = StandardScaler()
+x_train = sc_X.fit_transform(x_train)
+x_test = sc_X.transform(x_test)
+#Modelling the Network
+model = Sequential()
+model.add(Dense(input_dim=71,output_dim=37,activation=’relu’))
+model.add(Dense(activation=’sigmoid’,output_dim=3))
+model.compile(optimizer="adam",loss="categorical_crossentropy",
+metrics=["accuracy"])
+
+model.fit(x_train,y_train,batch_size=1024,epochs=5,validation_
+data=(x_test,y_test))
+#Predicting the Test set rules
+y_pred = model.predict(x_test)
+y_pred = np.argmax(y_pred, axis=1)
+y_test = np.argmax(y_test,axis=1)
